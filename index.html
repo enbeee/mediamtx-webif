@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaMTX Web Interface</title>
+    <link rel="stylesheet" href="styles.css?v=20260419k">
+    <script defer src="reader.js?v=20260419k"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>MediaMTX</h1>
+                <span class="version" id="serverVersion">Loading...</span>
+                <div class="instance-selector">
+                    <select id="instanceSelector" class="form-control">
+                        <!-- Instances will be populated here -->
+                    </select>
+                    <div class="instance-actions">
+                        <button class="btn btn-icon btn-sm" id="addInstanceBtn" title="Add Instance">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                        <button class="btn btn-icon btn-sm" id="editInstanceBtn" title="Edit Instance">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="btn btn-icon btn-sm" id="deleteInstanceBtn" title="Delete Instance" style="color: var(--danger-color)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="#paths" class="nav-item" data-section="paths">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    Paths / Stream Keys
+                </a>
+                <a href="#services" class="nav-item" data-section="services">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Services
+                </a>
+                <a href="#users" class="nav-item" data-section="users">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Users & Permissions
+                </a>
+                <a href="#connections" class="nav-item" data-section="connections">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    Connections
+                </a>
+                <a href="#recordings" class="nav-item" data-section="recordings">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Recordings
+                </a>
+                <a href="#hls" class="nav-item" data-section="hls">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Live Players
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot" id="connectionStatus"></span>
+                    <span id="connectionStatusText">Connecting...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <div style="display:flex;gap:0.5rem">
+                        <button class="btn btn-secondary" onclick="app.exportSettings()">Export Settings</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">Import Settings</button>
+                        <button class="btn btn-secondary" onclick="app.refreshAll()">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="app.importSettings(this)">
+                <div class="dashboard-stats">
+                    <div class="stat-card" onclick="app.navigateTo('paths')" style="cursor:pointer">
+                        <div class="stat-icon stat-icon-blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Paths</h3>
+                            <p class="stat-value" id="totalPaths">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="app.navigateTo('connections')" style="cursor:pointer">
+                        <div class="stat-icon stat-icon-green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Connections</h3>
+                            <p class="stat-value" id="totalConnections">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="app.navigateTo('hls')" style="cursor:pointer">
+                        <div class="stat-icon stat-icon-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Live Players</h3>
+                            <p class="stat-value" id="totalHLSMuxers">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="app.navigateTo('recordings')" style="cursor:pointer">
+                        <div class="stat-icon stat-icon-orange">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Recordings</h3>
+                            <p class="stat-value" id="totalRecordings">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-services">
+                    <h3>Active Services</h3>
+                    <div class="services-grid" id="dashboardServices">
+                        <!-- Service status will be populated here -->
+                    </div>
+                </div>
+                <div class="dashboard-recent">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list" id="activityList">
+                        <p class="text-muted">No recent activity</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Paths Section -->
+            <section id="paths" class="section">
+                <div class="section-header">
+                    <h2>Paths / Stream Keys</h2>
+                    <button class="btn btn-primary" onclick="app.showPathModal()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Path
+                    </button>
+                </div>
+                <div class="paths-list" id="pathsList">
+                    <!-- Paths will be populated here -->
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section id="services" class="section">
+                <div class="section-header">
+                    <h2>Services Configuration</h2>
+                    <button class="btn btn-primary" onclick="app.saveServices()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+                <div class="services-config" id="servicesConfig">
+                    <!-- Services will be populated here -->
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="section">
+                <div class="section-header">
+                    <h2>Users & Permissions</h2>
+                    <button class="btn btn-primary" onclick="app.showUserModal()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add User
+                    </button>
+                </div>
+                <div class="users-list" id="usersList">
+                    <!-- Users will be populated here -->
+                </div>
+            </section>
+
+            <!-- Connections Section -->
+            <section id="connections" class="section">
+                <div class="section-header">
+                    <h2>Active Connections</h2>
+                    <button class="btn btn-secondary" onclick="app.refreshConnections()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="connections-list" id="connectionsList">
+                    <!-- Connections will be populated here -->
+                </div>
+            </section>
+
+            <!-- Recordings Section -->
+            <section id="recordings" class="section">
+                <div class="section-header">
+                    <h2>Recordings</h2>
+                    <button class="btn btn-secondary" onclick="app.refreshRecordings()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="recordings-list" id="recordingsList">
+                    <!-- Recordings will be populated here -->
+                </div>
+            </section>
+
+            <!-- HLS Section -->
+            <section id="hls" class="section">
+                <div class="section-header">
+                    <h2>Embedded Players</h2>
+                    <button class="btn btn-secondary" onclick="app.refreshHLS()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="embedded-players-grid" id="playersList">
+                    <!-- Video players will be populated here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Path Modal -->
+    <div class="modal" id="pathModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="pathModalTitle">Add Path</h3>
+                <button class="modal-close" onclick="app.closePathModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="pathForm">
+                    <input type="hidden" id="pathName" value="">
+                    <div class="form-group">
+                        <label for="pathNameInput">Path Name</label>
+                        <input type="text" id="pathNameInput" class="form-control" required placeholder="e.g., mystream">
+                    </div>
+                    <div class="form-group">
+                        <label for="pathSource">Source</label>
+                        <input type="text" id="pathSource" class="form-control" placeholder="e.g., rtsp://localhost:8554/stream">
+                        <small class="form-text">Leave empty for publisher-based streams</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="pathMaxReaders">Max Readers</label>
+                        <input type="number" id="pathMaxReaders" class="form-control" value="0" min="0">
+                        <small class="form-text">0 = unlimited</small>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pathRecord">
+                            Enable Recording
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="pathRecordPath">Record Path</label>
+                        <input type="text" id="pathRecordPath" class="form-control" placeholder="e.g., ./recordings/%path">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pathSourceOnDemand">
+                            Source on Demand
+                        </label>
+                        <small class="form-text">Start source only when a reader connects</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closePathModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="app.savePath()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Add User</h3>
+                <button class="modal-close" onclick="app.closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userIndex" value="-1">
+                    <div class="form-group">
+                        <label for="userName">Username</label>
+                        <input type="text" id="userName" class="form-control" required placeholder="e.g., myuser">
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">Password</label>
+                        <input type="password" id="userPassword" class="form-control" placeholder="e.g., mypassword">
+                    </div>
+                    <div class="form-group">
+                        <label>Allowed IPs (comma-separated)</label>
+                        <input type="text" id="userIPs" class="form-control" placeholder="e.g., 192.168.1.0/24, 10.0.0.1">
+                        <small class="form-text">Leave empty for all IPs</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Permissions</label>
+                        <div class="permissions-grid" id="permissionsGrid">
+                            <label><input type="checkbox" class="perm-checkbox" value="publish"> Publish</label>
+                            <label><input type="checkbox" class="perm-checkbox" value="read"> Read</label>
+                            <label><input type="checkbox" class="perm-checkbox" value="playback"> Playback</label>
+                            <label><input type="checkbox" class="perm-checkbox" value="api"> API</label>
+                            <label><input type="checkbox" class="perm-checkbox" value="metrics"> Metrics</label>
+                            <label><input type="checkbox" class="perm-checkbox" value="pprof"> PProf</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPermPath">Permission Path (optional)</label>
+                        <input type="text" id="userPermPath" class="form-control" placeholder="e.g., mystream or leave empty for all">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="app.saveUser()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Detail Modal -->
+    <div class="modal" id="connModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Connection Details</h3>
+                <button class="modal-close" onclick="app.closeConnModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="connDetail" class="code-block"></pre>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeConnModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instance Modal -->
+    <div class="modal" id="instanceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="instanceModalTitle">Add Instance</h3>
+                <button class="modal-close" onclick="app.closeInstanceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="instanceForm">
+                    <input type="hidden" id="instanceId" value="">
+                    <div class="form-group">
+                        <label for="instanceName">Instance Name</label>
+                        <input type="text" id="instanceName" class="form-control" required placeholder="e.g., Production Server">
+                    </div>
+                    <div class="form-group">
+                        <label for="instanceUrl">API URL</label>
+                        <input type="text" id="instanceUrl" class="form-control" required placeholder="e.g., http://192.168.1.100:9997">
+                        <small class="form-text">The URL of the MediaMTX API (without /v3)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="instanceUser">Username (optional)</label>
+                        <input type="text" id="instanceUser" class="form-control" placeholder="e.g., admin">
+                        <small class="form-text">Required if API is protected with authentication</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="instancePassword">Password (optional)</label>
+                        <input type="password" id="instancePassword" class="form-control" placeholder="e.g., mypassword">
+                        <small class="form-text">Required if API is protected with authentication</small>
+                    </div>
+                    <div class="form-group">
+                        <label>CORS Configuration</label>
+                        <div class="cors-info">
+                            <small class="form-text">
+                                Make sure the MediaMTX instance allows CORS requests from this interface.
+                                Add this to mediamtx.yml:
+                            </small>
+                            <pre class="code-block" style="margin-top: 0.5rem; font-size: 0.75rem;">
+apiAllowOrigins:
+  - "http://your-web-interface-url"
+  - "http://localhost:8080"
+                            </pre>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeInstanceModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="app.saveInstance()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recording Player Modal -->
+    <div class="modal" id="recordingPlayerModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="recordingPlayerTitle">Recording Playback</h3>
+                <button class="modal-close" onclick="app.closeRecordingPlayer()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <video id="recordingPlayerVideo" controls autoplay style="width: 100%; display: block; background: #000; max-height: 70vh;"></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastMessage"></span>
+        <button class="toast-close" onclick="app.hideToast()">&times;</button>
+    </div>
+
+    <script src="app.js?v=20260419k"></script>
+</body>
+</html>
